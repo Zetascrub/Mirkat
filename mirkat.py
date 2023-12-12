@@ -1,11 +1,8 @@
 import os
 import argparse
 from colorama import Fore, Style
-from tqdm import tqdm
-import time
 import json
 import shutil
-import pyfiglet
 import subprocess
 import re
 
@@ -117,6 +114,7 @@ class NmapScans:
         self.class_name = "Nmap"
         self.root_dir = project_dir
         self.results = {}
+        self.ports = []
         self.http_services = []  # Initialize as a dictionary
         
         # Create Directory
@@ -148,19 +146,29 @@ class NmapScans:
             self.config = ConfigManager().read_config()   
 
 
-
-
-
     def perform_scan(self):
         for scan_type in self.config["nmap"]["scan_type"]:
             nmap_command_template = self.config["nmap"]["scan_type"][scan_type]
             for target in self.targets:
                 output.print_info(f"Nmap {scan_type} Scan on {target}", "Started")
                 nmap_output_file_path = os.path.join(self.root_dir, "Scans/Nmap", f"{target}_{scan_type}_scan.txt")
-                nmap_command = f"{nmap_command_template} {nmap_output_file_path} {target}"
+
+                # Construct nmap command based on whether ports are specified
+                if len(self.ports) >= 1:
+                    ports_str = ",".join(port.split('/')[0] for port in self.ports if '/' in port)                    
+                    output.print_info("Scanning specific ports:",f"{ports_str}")
+                    nmap_command = f"{nmap_command_template} {nmap_output_file_path} -p {ports_str} {target}"
+                else:
+                    output.print_info("Scanning all ports","")
+                    nmap_command = f"{nmap_command_template} {nmap_output_file_path} -p 0-65535 {target}"
+                # Parse the output file to update self.ports
+                # self.parse_nmap_output(nmap_output_file_path)
+
                 output.log_message(f"Command Ran: {nmap_command}")
                 self._execute_scan(nmap_command, nmap_output_file_path, target, scan_type)
                 output.print_info(f"Nmap {scan_type} Scan on {target}", "Completed")
+                self._parse_file(nmap_output_file_path, target)
+
 
     def _execute_scan(self, nmap_command, output_file_path, target, scan_type):
         try:
@@ -168,6 +176,7 @@ class NmapScans:
                 subprocess.run(nmap_command, shell=True, stdout=output_file, stderr=subprocess.STDOUT)
         except subprocess.SubprocessError as error:
             output.print_error(f"Error during {scan_type} Nmap scan on {target}", error)
+
 
     def parse_results(self):
         for file_name in os.listdir(os.path.join(self.root_dir, "Scans/Nmap")):
@@ -192,8 +201,11 @@ class NmapScans:
         return target, scan_type
 
     def _extract_service_info(self, line, target, protocol):
+        if target not in self.results:
+            self.results[target] = {}
         parts = line.split()
         port = parts[0]
+        self.ports.append(port)
         service = parts[2] if len(parts) >= 3 else "unknown"
         self.results[target].setdefault(protocol, {})[port] = service
         if service in ['http', 'https']:
