@@ -30,3 +30,9 @@ Old/plugins/__pycache__/nmap_plugin.cpython-311.pyc
 Old/plugins/__pycache__/sslscan_plugin.cpython-311.pyc
 .gitignore
 Projects/*
+127.0.0.1_detailed-tcp_scan.xml
+error.log
+mirkat copy.py
+test.xml
+plugins/__pycache__/plugin_nmap.cpython-311.pyc
+plugins/__pycache__/plugin_eyewitness.cpython-311.pyc
