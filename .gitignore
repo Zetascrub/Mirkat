@@ -1,0 +1,8 @@
+Projects/
+test.sh
+Core/__pycache__/
+Scanners/__pycache__/
+old/
+__pycache__/
+Logs
+
