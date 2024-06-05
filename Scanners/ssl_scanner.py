@@ -4,13 +4,14 @@ import xml.etree.ElementTree as ET
 from Core.plugin_base import PluginBase
 from Core.vuln_manager import VulnManager
 from Core.output_manager import OutputManager
+from Core import config
 
 class SslScanner(PluginBase):
     def __init__(self, nmap_results, output_manager, project_path):
         super().__init__(nmap_results, output_manager)
         self.project_path = project_path
         self.output_manager = OutputManager()
-        self.output_dir = os.path.join(self.project_path, "SSLScan")
+        self.output_dir = os.path.join(self.project_path, config.SCAN_RESULTS_DIR_NAME, "SSLScan")
         self.vuln_manager = VulnManager()
 
         if not os.path.exists(self.output_dir):
@@ -22,7 +23,7 @@ class SslScanner(PluginBase):
         for ip, ports in self.nmap_results.items():
             for port, details in ports.items():
                 if port in http_ports:
-                    self.output_manager.print_info(f"Running SSL scan on",f"{ip}:{port}")
+                    self.output_manager.print_info(f"Running SSL scan on", f"{ip}:{port}")
                     scan_target = f"{ip}:{port}"
                     output_file_path = os.path.join(self.output_dir, f"{scan_target.replace(':', '-')}_sslscan.xml")
                     self._run_sslscan(scan_target, output_file_path)
