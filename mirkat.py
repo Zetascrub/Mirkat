@@ -30,7 +30,9 @@ class Mirkat:
         os.makedirs(self.project_path, exist_ok=True)
         os.makedirs(os.path.join(self.project_path, config.SCAN_RESULTS_DIR_NAME), exist_ok=True)
         os.makedirs(os.path.join(self.project_path, config.REPORTS_DIR_NAME), exist_ok=True)
-        self.output_manager.print_info(f"Project directory setup at", self.project_path)
+        self.output_manager.print_divider()
+        self.output_manager.print_info("Project directory setup at", self.project_path)
+        # self.output_manager.print_divider()
 
     def execute_scans(self):
         nmap_scanner = NmapScanner(self.scope, self.scan_results, self.output_manager, self.project_path)
@@ -58,12 +60,12 @@ class Mirkat:
                 for attribute_name in dir(module):
                     attribute = getattr(module, attribute_name)
                     if isinstance(attribute, type) and issubclass(attribute, PluginBase) and attribute is not PluginBase:
-                        self.output_manager.print_info(f"Running plugin",f"{module_name}.{attribute_name}")
+                        self.output_manager.print_info("Running plugin", f"{module_name}.{attribute_name}")
                         plugin_instance = attribute(self.scan_results, self.output_manager, self.project_path)
                         plugin_instance.run()
 
     def generate_reports(self, all_results):
-        report_gen = ReportGenerator(all_results)
+        report_gen = ReportGenerator(all_results, self.project_path)
         report_gen.generate_excel_report()
         report_gen.generate_html_report()
 

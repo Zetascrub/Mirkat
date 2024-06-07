@@ -3,9 +3,9 @@ import pandas as pd
 from Core import config
 
 class ReportGenerator:
-    def __init__(self, all_results):
+    def __init__(self, all_results, project_path):
         self.all_results = all_results
-        self.reports_dir = os.path.join(config.PROJECT_DIR, 'Reports')
+        self.reports_dir = os.path.join(project_path, config.REPORTS_DIR_NAME)
         if not os.path.exists(self.reports_dir):
             os.makedirs(self.reports_dir)
 

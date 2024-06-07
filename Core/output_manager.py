@@ -23,26 +23,28 @@ class OutputManager:
         reset_color = "\033[0m"
         print(f"{color}{message}{reset_color}")
 
-    def print_banner(self):
-        banner = """
+    def print_banner(self, message="Scan Started"):
+        banner = f"""
         *****************************************
-        *            Scan Started               *
+        *            {message}               *
         *****************************************
         """
-        print(banner)
+        self.print_colored(banner, 'Info')
+
+    def print_divider(self):
+        print("\n" + "="*50 + "\n")
+
+    def print_info(self, title, message):
+        formatted_message = f"{title}: {message}"
+        self.log_message(formatted_message, logging.INFO)
+        self.print_colored(formatted_message, 'Info')
+
+    def print_success(self, message):
+        self.print_colored(message, 'Info')
+
+    def print_warning(self, message):
+        self.print_colored(message, 'Warning')
 
     def print_error(self, message):
         self.log_message(message, logging.ERROR)
         self.print_colored(message, "High")
-
-    def print_info(self, title, message):
-        full_message = f"{title}: {message}"
-        self.log_message(full_message, logging.INFO)
-        print(full_message)
-
-# Example of instantiating and using OutputManager
-if __name__ == "__main__":
-    output_manager = OutputManager()
-    output_manager.print_banner()
-    output_manager.print_info("This is an informational message.")
-    output_manager.print_error("This is an error message.")
