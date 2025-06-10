@@ -43,10 +43,6 @@ def convert_severity_to_color(severity):
         "Medium": "\033[93m",  # Yellow
         "Low": "\033[96m",  # Cyan
         "Info": "\033[94m",  # Blue
+        "Warning": "\033[93m",  # Yellow (alias for warnings)
     }
     return severity_colors.get(severity, "\033[0m")  # Default to no color
-
-def get_full_path(relative_path):
-    """Returns the full path based on the project directory."""
-    current_dir = os.getcwd()
-    return os.path.join(current_dir, relative_path)
