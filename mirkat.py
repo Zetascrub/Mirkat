@@ -4,6 +4,7 @@ import importlib
 from Core.vuln_manager import VulnManager
 from Core.report_generator import ReportGenerator
 from Core.output_manager import OutputManager
+from Core.llm_client import send_scan_results, extract_commands, execute_commands, check_internet
 from Core.utils import setup_logging, read_scope_from_file, is_valid_ip
 from Core.nmap_scanner import NmapScanner
 from Core.plugin_base import PluginBase
@@ -70,7 +71,23 @@ class Mirkat:
         report_gen.generate_html_report()
 
     def generate_executive_summary(self, llm_ip):
-        pass
+        if not check_internet(f"http://{llm_ip}"):
+            self.output_manager.print_warning("LLM server not reachable. Skipping executive summary.")
+            return
+
+        self.output_manager.print_info("Sending results to LLM", llm_ip)
+        try:
+            response_text = send_scan_results(self.scan_results, llm_ip)
+        except Exception as e:
+            self.output_manager.print_error(f"Error communicating with LLM: {e}")
+            return
+
+        commands = extract_commands(response_text)
+        if commands:
+            self.output_manager.print_info("LLM recommended commands", ", ".join(commands))
+            execute_commands(commands, self.output_manager)
+        else:
+            self.output_manager.print_info("LLM Response", response_text)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Automated Scanning Tool")

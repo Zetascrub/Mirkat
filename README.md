@@ -57,6 +57,16 @@ python mirkat.py -p <project_code> -c <client_name> -s <scope> [-l <llm_ip>]
 python mirkat.py -p PROJ123 -c "Client Name" -s "192.168.1.1, 192.168.1.2" -l "127.0.0.1:11434"
 ```
 
+### Continuous Monitoring
+
+Use `monitor.py` for unattended monitoring. It runs scans at a defined interval and can communicate with an Ollama server if available.
+
+```sh
+python monitor.py -s <scope> [-c <client_name>] [-p <project_prefix>] [-l <llm_ip>] [-i <interval_seconds>]
+```
+
+To start monitoring automatically on boot (e.g., on a Raspberry Pi), create a systemd service or an `@reboot` cron entry that launches the above command.
+
 ## Project Structure
 
 Mirkat organizes output and reports into a structured directory format:
